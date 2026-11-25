@@ -3,10 +3,123 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project: Last Exotic</title>
+    <title>Project: Last Exotic — Island Survival</title>
   </head>
   <body>
     <canvas id="game-canvas"></canvas>
+
+    <!-- Phase 1 HUD Overlay (mounted from src/ui/hud.html) -->
+    <div id="hud-mount"></div>
+
+    <!-- Brief Damage Screen Vignette -->
+    <div id="damage-vignette" class="damage-vignette" aria-hidden="true"></div>
+
+    <!-- Top-Center Status & Controls Pill -->
+    <header id="top-status-bar" class="top-status-bar" role="region" aria-label="Game Status and Controls">
+      <div id="zone-badge" class="zone-badge" title="Current Island Zone">SOUTH BEACH</div>
+
+      <div class="alert-meter-group" id="fbi-alert-group" data-level="calm">
+        <span class="alert-label">FBI ALERT</span>
+        <div class="alert-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="fbi-alert-track">
+          <div class="alert-bar-fill" id="fbi-alert-fill" style="width: 0%"></div>
+        </div>
+        <span class="alert-status-text" id="fbi-alert-text">CALM</span>
+      </div>
+
+      <div id="sweep-warning-chip" class="sweep-warning-chip is-hidden" role="status" aria-live="polite"></div>
+
+      <div id="status-chips" class="status-chips" aria-live="polite"></div>
+
+      <div class="top-controls-group">
+        <button type="button" id="btn-audio-toggle" class="top-pill-btn top-pill-btn--audio" aria-pressed="false" title="Toggle Audio Mute (M)">
+          🔊
+        </button>
+        <button type="button" id="btn-cam-toggle" class="top-pill-btn top-pill-btn--gold" data-mode="iso" title="Switch between Locked 45° Game Camera and Free Orbit Inspection">
+          Locked 45°
+        </button>
+        <button type="button" id="btn-test-death" class="top-pill-btn top-pill-btn--danger" title="Test Death Crate & Half-HP Respawn Loop (K)">
+          ☠ Test Death (K)
+        </button>
+        <button type="button" id="btn-help-toggle" class="top-pill-btn" aria-expanded="false" title="Show/Hide Controls">
+          ? Controls
+        </button>
+      </div>
+    </header>
+
+    <!-- Compact Expandable Controls Help Card -->
+    <section id="controls-help-card" class="controls-help-card is-hidden" aria-label="Controls Reference">
+      <div class="help-card-header">
+        <span>ISLAND SURVIVAL CONTROLS</span>
+        <button type="button" id="btn-help-close" class="popover-close-btn" aria-label="Close Controls">✕</button>
+      </div>
+      <div class="help-grid">
+        <div><kbd>WASD</kbd> / <kbd>Arrows</kbd></div><div>Move Boots</div>
+        <div><kbd>Shift</kbd></div><div>Sprint (Drains Stamina)</div>
+        <div><kbd>C</kbd></div><div>Toggle Stealth Sneak</div>
+        <div><kbd>Left-Click</kbd> / <kbd>Space</kbd></div><div>Attack FBI / Jammers or Harvest Resources</div>
+        <div><kbd>F</kbd></div><div>Interact (Tame Crockstar, Rescue Smuff, Loot Crate, Set Respawn, Board Chopper)</div>
+        <div><kbd>U</kbd> / <kbd>Right-Click</kbd></div><div>Eat Food / Use Camo Bush, EMP Grenade, Blowpipe, Smoothie (or Cancel Blueprint)</div>
+        <div><kbd>Q</kbd> / <kbd>E</kbd> / <kbd>R</kbd></div><div>Companions / 3-Tier Crafting / 3-Tier Build Blueprints</div>
+        <div><kbd>1</kbd>–<kbd>0</kbd></div><div>Select Hotbar Slot</div>
+        <div><kbd>M</kbd></div><div>Mute / Unmute Procedural Audio</div>
+        <div><kbd>K</kbd></div><div>Test Death Crate &amp; 50% HP Respawn Loop</div>
+        <div><kbd>Esc</kbd></div><div>Close Menu / Cancel Blueprint / Skip Cutscene</div>
+      </div>
+    </section>
+
+    <!-- Toast Notification Stack -->
+    <div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- Top-Left Contextual Radial Popover Menus (Q / E / R) -->
+    <div id="radial-popover-host" class="radial-popover-host">
+      <!-- Q: Companions Menu -->
+      <section id="popover-companions" class="radial-popover is-hidden" aria-label="Companion Commands">
+        <div class="popover-header">
+          <div class="popover-title-row">
+            <span class="popover-key-tag">Q</span>
+            <h2>COMPANIONS</h2>
+          </div>
+          <button type="button" class="popover-close-btn" data-close-popover aria-label="Close">✕</button>
+        </div>
+        <div id="companions-panel-body" class="popover-body"></div>
+      </section>
+
+      <!-- E: Crafting Menu -->
+      <section id="popover-craft" class="radial-popover is-hidden" aria-label="Crafting Recipes">
+        <div class="popover-header">
+          <div class="popover-title-row">
+            <span class="popover-key-tag">E</span>
+            <h2>CRAFTING</h2>
+          </div>
+          <button type="button" class="popover-close-btn" data-close-popover aria-label="Close">✕</button>
+        </div>
+        <div id="craft-panel-body" class="popover-body"></div>
+      </section>
+
+      <!-- R: Build / Blueprints Menu -->
+      <section id="popover-build" class="radial-popover is-hidden" aria-label="Build Blueprints">
+        <div class="popover-header">
+          <div class="popover-title-row">
+            <span class="popover-key-tag">R</span>
+            <h2>BUILD &amp; BLUEPRINTS</h2>
+          </div>
+          <button type="button" class="popover-close-btn" data-close-popover aria-label="Close">✕</button>
+        </div>
+        <div id="build-panel-body" class="popover-body"></div>
+      </section>
+    </div>
+
+    <!-- Bottom-Center Contextual Prompt Pill -->
+    <div id="context-prompt" class="context-prompt is-hidden" role="status" aria-live="polite"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="loading-card">
+        <div class="loading-title">PROJECT: LAST EXOTIC</div>
+        <div id="loading-status" class="loading-status">Loading 3D island, characters &amp; survival systems...</div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

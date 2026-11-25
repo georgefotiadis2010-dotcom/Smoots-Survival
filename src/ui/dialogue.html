@@ -1,0 +1,71 @@
+<!-- Project: Last Exotic — 3D In-Engine Cutscene Director & Dialogue Overlay (EXOTIC-012)
+     Auto-mounted onto document.body by src/systems/cutscenes.js with src/ui/dialogue.css.
+     Pointer-events rule: pointer-events: none when hidden; pointer-events: auto ONLY on
+     #dialogue-box and #btn-cutscene-skip while #cutscene-overlay.is-active. -->
+<div
+  id="cutscene-overlay"
+  class="cutscene-overlay"
+  data-speaker="narrator"
+  role="region"
+  aria-label="Cutscene Dialogue"
+  aria-hidden="true"
+>
+  <!-- Top Black Cinematic Letterbox Bar -->
+  <div class="cutscene-bar cutscene-bar--top">
+    <div class="cutscene-top-inner">
+      <div class="cutscene-top-left">
+        <span id="cutscene-progress" class="cutscene-progress is-empty" aria-hidden="true"></span>
+      </div>
+
+      <div id="cutscene-title" class="cutscene-title is-empty" aria-live="polite"></div>
+
+      <div class="cutscene-top-right">
+        <button
+          type="button"
+          id="btn-cutscene-skip"
+          class="cutscene-skip-btn"
+          aria-label="Skip Cutscene (Escape)"
+          title="Skip Cutscene (ESC)"
+        >
+          <kbd class="cutscene-kbd">ESC</kbd>
+          <span>Skip</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Black Cinematic Letterbox Bar -->
+  <div class="cutscene-bar cutscene-bar--bottom" aria-hidden="true"></div>
+
+  <!-- Bottom Stylized Cel-Shaded Dialogue Box -->
+  <div class="dialogue-stage">
+    <section
+      id="dialogue-box"
+      class="dialogue-box"
+      role="button"
+      tabindex="0"
+      aria-label="Dialogue Box — Press Space or Click to Continue"
+    >
+      <!-- Speaker Portrait Slot (Inline SVG populated by cutscenes.js) -->
+      <div class="dialogue-portrait-wrap">
+        <div id="dialogue-portrait" class="dialogue-portrait" aria-hidden="true"></div>
+      </div>
+
+      <!-- Speaker Nameplate, Typewriter Text & Continue Prompt -->
+      <div class="dialogue-content">
+        <div class="dialogue-header">
+          <span id="dialogue-speaker" class="dialogue-speaker">NARRATOR</span>
+        </div>
+
+        <p id="dialogue-text" class="dialogue-text" aria-live="polite"></p>
+
+        <div class="dialogue-footer">
+          <span id="dialogue-continue" class="dialogue-continue">
+            <span class="dialogue-continue-arrow" aria-hidden="true">&#9660;</span>
+            <span class="dialogue-continue-label">[SPACE / CLICK] Continue</span>
+          </span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

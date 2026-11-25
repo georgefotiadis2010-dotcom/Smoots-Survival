@@ -1,0 +1,682 @@
+/* ==========================================================================
+   Project: Last Exotic — Cutscene Director & Dialogue UI Styles (EXOTIC-012)
+   Bold cel-shaded dark-ink + gold-trim aesthetic matching hud.css & style.css.
+   Zero external CDN URLs or web fonts.
+
+   Interaction Rules:
+   - #cutscene-overlay and all descendants have pointer-events: none when hidden.
+   - pointer-events: auto ONLY on #dialogue-box and #btn-cutscene-skip when active.
+   ========================================================================== */
+
+.cutscene-overlay {
+  --cs-ink: #14181c;
+  --cs-outline: #181c20;
+  --cs-ink-light: #fffdf4;
+  --cs-gold-bright: #ffd92b;
+  --cs-gold-light: #ffe77a;
+  --cs-gold-mid: #c8ab62;
+  --cs-gold-dark: #876b31;
+  --cs-font: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* Dynamic per-speaker theme tokens (default: narrator) */
+  --speaker-pill-bg: linear-gradient(180deg, #d7b255 0%, #9c792a 100%);
+  --speaker-pill-text: #fffdf4;
+  --speaker-pill-border: #ffe77a;
+  --speaker-accent: #ffd92b;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 38%, #346858 0%, #1d3c47 68%, #12232c 100%);
+
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: var(--cs-font);
+  color: var(--cs-ink-light);
+  overflow: hidden;
+  visibility: hidden;
+  transition: visibility 0s linear 440ms;
+}
+
+.cutscene-overlay *,
+.cutscene-overlay *::before,
+.cutscene-overlay *::after {
+  box-sizing: border-box;
+}
+
+.cutscene-overlay.is-active {
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+/* Subtle cinematic top/bottom vignette while cutscene is active */
+.cutscene-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 56%,
+    rgba(6, 10, 14, 0.44) 100%
+  );
+  transition: opacity 420ms ease;
+}
+
+.cutscene-overlay.is-active::before {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Per-Speaker Color-Coded Pill & Portrait Backdrop Themes
+   ========================================================================== */
+
+.cutscene-overlay[data-speaker="tarcy"] {
+  --speaker-pill-bg: linear-gradient(180deg, #b8a7d6 0%, #8372a8 100%);
+  --speaker-pill-text: #fffdf4;
+  --speaker-pill-border: #f8e24a;
+  --speaker-accent: #f7b7cd;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 35%, #ffe6a3 0%, #e5a96b 58%, #9e5c45 100%);
+}
+
+.cutscene-overlay[data-speaker="dos"] {
+  --speaker-pill-bg: linear-gradient(180deg, #e02c32 0%, #9b141a 100%);
+  --speaker-pill-text: #fff7d6;
+  --speaker-pill-border: #ffd92b;
+  --speaker-accent: #ff5454;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 35%, #4b5563 0%, #272e38 64%, #151920 100%);
+}
+
+.cutscene-overlay[data-speaker="crockstar"] {
+  --speaker-pill-bg: linear-gradient(180deg, #8aa338 0%, #586c1e 100%);
+  --speaker-pill-text: #fffde6;
+  --speaker-pill-border: #f2dc52;
+  --speaker-accent: #b8d94c;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 35%, #55c4d6 0%, #277d91 60%, #154557 100%);
+}
+
+.cutscene-overlay[data-speaker="smuff"] {
+  --speaker-pill-bg: linear-gradient(180deg, #359bf2 0%, #1968b8 100%);
+  --speaker-pill-text: #ffffff;
+  --speaker-pill-border: #eef6ff;
+  --speaker-accent: #74c2ff;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 35%, #bfe4ff 0%, #5b9bd5 62%, #244b7a 100%);
+}
+
+.cutscene-overlay[data-speaker="vance"] {
+  --speaker-pill-bg: linear-gradient(180deg, #2d333c 0%, #14181e 100%);
+  --speaker-pill-text: #ffe066;
+  --speaker-pill-border: #ffd92b;
+  --speaker-accent: #ff3b47;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 38%, #632229 0%, #2c151b 60%, #120b0f 100%);
+}
+
+.cutscene-overlay[data-speaker="fbi"] {
+  --speaker-pill-bg: linear-gradient(180deg, #2e3b4a 0%, #1a222c 100%);
+  --speaker-pill-text: #f7d95b;
+  --speaker-pill-border: #d9b43b;
+  --speaker-accent: #f0c030;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 36%, #4c5d70 0%, #26313d 62%, #131920 100%);
+}
+
+.cutscene-overlay[data-speaker="narrator"] {
+  --speaker-pill-bg: linear-gradient(180deg, #d7b255 0%, #987424 100%);
+  --speaker-pill-text: #fffdf4;
+  --speaker-pill-border: #fff0a8;
+  --speaker-accent: #ffd92b;
+  --speaker-portrait-bg: radial-gradient(circle at 50% 36%, #3f7e6c 0%, #1f4c52 62%, #102630 100%);
+}
+
+/* ==========================================================================
+   1. Smooth-Sliding Black Cinematic Letterbox Bars
+   ========================================================================== */
+
+.cutscene-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #090b0e 0%, #101419 100%);
+  pointer-events: none;
+  will-change: transform;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cutscene-bar--top {
+  top: 0;
+  height: clamp(54px, 8.8vh, 78px);
+  border-bottom: 3px solid var(--cs-ink);
+  box-shadow:
+    inset 0 -2px 0 rgba(255, 217, 43, 0.52),
+    0 6px 20px rgba(0, 0, 0, 0.65);
+  transform: translateY(-110%);
+  display: flex;
+  align-items: center;
+  z-index: 3;
+}
+
+.cutscene-bar--bottom {
+  bottom: 0;
+  height: clamp(58px, 10vh, 88px);
+  background: linear-gradient(0deg, #090b0e 0%, #101419 100%);
+  border-top: 3px solid var(--cs-ink);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 217, 43, 0.52),
+    0 -6px 20px rgba(0, 0, 0, 0.65);
+  transform: translateY(110%);
+  z-index: 1;
+}
+
+.cutscene-overlay.is-active .cutscene-bar--top,
+.cutscene-overlay.is-active .cutscene-bar--bottom {
+  transform: translateY(0);
+}
+
+/* Top Bar Layout: Progress (left) | Title Banner (center) | Skip Button (right) */
+.cutscene-top-inner {
+  width: 100%;
+  height: 100%;
+  padding: 0 clamp(14px, 2.4vw, 28px);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.cutscene-top-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+
+.cutscene-top-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+/* Shot Progress Pill */
+.cutscene-progress {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 217, 43, 0.35);
+  color: #e6d7a0;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.cutscene-progress.is-empty {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ==========================================================================
+   2. Optional Top Act / Scene Title Banner (#cutscene-title)
+   ========================================================================== */
+
+.cutscene-title {
+  position: relative;
+  padding: 6px 20px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2b333d 0%, #171c22 100%);
+  border: 2.5px solid var(--cs-ink);
+  box-shadow:
+    0 0 0 2px var(--cs-gold-mid),
+    0 0 0 4px var(--cs-ink),
+    inset 0 1px 0 rgba(255, 250, 220, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.6);
+  color: var(--cs-gold-light);
+  font-size: clamp(12px, 1.55vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  max-width: min(56vw, 560px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow:
+    -1.5px -1.5px 0 var(--cs-ink),
+     1.5px -1.5px 0 var(--cs-ink),
+    -1.5px  1.5px 0 var(--cs-ink),
+     1.5px  1.5px 0 var(--cs-ink),
+     0      2px   4px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 240ms ease, transform 240ms ease;
+}
+
+.cutscene-title.is-empty {
+  opacity: 0;
+  transform: translateY(-6px);
+  visibility: hidden;
+}
+
+/* ==========================================================================
+   3. Crisp [ESC] Skip Button (#btn-cutscene-skip)
+   ========================================================================== */
+
+.cutscene-skip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px;
+  border-radius: 9px;
+  border: 2.5px solid var(--cs-ink);
+  background: linear-gradient(180deg, #323c47 0%, #1d242c 100%);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 217, 43, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 3px 8px rgba(0, 0, 0, 0.55);
+  color: var(--cs-ink-light);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  outline: none;
+  pointer-events: none;
+  transition: transform 95ms ease, filter 110ms ease, box-shadow 110ms ease;
+}
+
+.cutscene-overlay.is-active .cutscene-skip-btn {
+  pointer-events: auto;
+}
+
+.cutscene-skip-btn:hover,
+.cutscene-skip-btn:focus-visible {
+  filter: brightness(1.14);
+  box-shadow:
+    0 0 0 2px var(--cs-gold-bright),
+    0 0 12px rgba(255, 217, 43, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 4px 10px rgba(0, 0, 0, 0.65);
+}
+
+.cutscene-skip-btn:active {
+  transform: translateY(1px) scale(0.96);
+}
+
+.cutscene-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: #101418;
+  border: 1.5px solid var(--cs-gold-bright);
+  color: var(--cs-gold-bright);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   4. Bottom Stylized Cel-Shaded Dialogue Box (#dialogue-box)
+   ========================================================================== */
+
+.dialogue-stage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(14px, 3vh, 28px);
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.dialogue-box {
+  position: relative;
+  width: min(820px, 100%);
+  min-height: 128px;
+  padding: 14px 20px 12px 16px;
+  border-radius: 16px;
+  border: 3.5px solid var(--cs-ink);
+  background: linear-gradient(180deg, #27313d 0%, #192028 60%, #12171e 100%);
+  box-shadow:
+    0 0 0 2.5px var(--cs-gold-bright),
+    0 0 0 5.5px var(--cs-ink),
+    inset 0 2px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.45),
+    0 14px 34px rgba(0, 0, 0, 0.78);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 18px;
+  cursor: pointer;
+  outline: none;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(34px) scale(0.98);
+  transition:
+    opacity 260ms ease,
+    transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 140ms ease;
+}
+
+.cutscene-overlay.is-active.is-dialogue-visible .dialogue-box {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.dialogue-box:hover,
+.dialogue-box:focus-visible {
+  box-shadow:
+    0 0 0 2.5px var(--cs-gold-light),
+    0 0 0 5.5px var(--cs-ink),
+    0 0 18px rgba(255, 217, 43, 0.32),
+    inset 0 2px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.45),
+    0 16px 36px rgba(0, 0, 0, 0.82);
+}
+
+.dialogue-box:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+/* Decorative Comic Corner Rivets */
+.dialogue-box::before,
+.dialogue-box::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff4b8 0%, #d4af45 65%, #7a5c1c 100%);
+  border: 1.5px solid var(--cs-ink);
+  pointer-events: none;
+}
+
+.dialogue-box::before {
+  top: 8px;
+  right: 10px;
+}
+
+.dialogue-box::after {
+  bottom: 8px;
+  left: 10px;
+}
+
+/* ==========================================================================
+   5. Speaker Portrait Slot (#dialogue-portrait)
+   ========================================================================== */
+
+.dialogue-portrait-wrap {
+  position: relative;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.dialogue-portrait {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 14px;
+  border: 3px solid var(--cs-ink);
+  background: var(--speaker-portrait-bg);
+  box-shadow:
+    0 0 0 2px var(--cs-gold-mid),
+    0 0 0 4px var(--cs-ink),
+    inset 0 2px 4px rgba(255, 255, 255, 0.28),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.42),
+    0 5px 12px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Glossy comic cel highlight across top of portrait badge */
+.dialogue-portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.04) 38%,
+    transparent 42%
+  );
+  pointer-events: none;
+}
+
+.dialogue-portrait-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform-origin: 50% 85%;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.42));
+}
+
+.cutscene-overlay.is-typing .dialogue-portrait-svg {
+  animation: portraitTalkBob 240ms ease-in-out infinite alternate;
+}
+
+@keyframes portraitTalkBob {
+  from {
+    transform: translateY(0) scale(1, 1);
+  }
+  to {
+    transform: translateY(-2.2px) scale(1.015, 0.985);
+  }
+}
+
+/* ==========================================================================
+   6. Speaker Name Plate, Typewriter Body & Continue Arrow
+   ========================================================================== */
+
+.dialogue-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.dialogue-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.dialogue-speaker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 13px;
+  border-radius: 999px;
+  background: var(--speaker-pill-bg);
+  border: 2.5px solid var(--cs-ink);
+  box-shadow:
+    0 0 0 1.5px var(--speaker-pill-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 3px 6px rgba(0, 0, 0, 0.45);
+  color: var(--speaker-pill-text);
+  font-size: 12.5px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow:
+    -1.2px -1.2px 0 var(--cs-ink),
+     1.2px -1.2px 0 var(--cs-ink),
+    -1.2px  1.2px 0 var(--cs-ink),
+     1.2px  1.2px 0 var(--cs-ink);
+}
+
+.dialogue-text {
+  margin: 0;
+  min-height: 52px;
+  color: var(--cs-ink-light);
+  font-size: clamp(14.5px, 1.7vw, 17px);
+  font-weight: 700;
+  line-height: 1.46;
+  letter-spacing: 0.012em;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.78);
+  word-wrap: break-word;
+}
+
+/* Crisp typing caret while typewriter is actively revealing text */
+.cutscene-overlay.is-typing .dialogue-text::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  margin-left: 3px;
+  vertical-align: -2px;
+  border-radius: 2px;
+  background: var(--cs-gold-bright);
+  box-shadow: 0 0 6px rgba(255, 217, 43, 0.65);
+  animation: caretBlink 520ms steps(2, start) infinite;
+}
+
+@keyframes caretBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.dialogue-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 18px;
+  pointer-events: none;
+}
+
+.dialogue-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cs-gold-light);
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-shadow:
+    -1px -1px 0 var(--cs-ink),
+     1px -1px 0 var(--cs-ink),
+    -1px  1px 0 var(--cs-ink),
+     1px  1px 0 var(--cs-ink);
+  opacity: 0.45;
+  transition: opacity 160ms ease;
+}
+
+.cutscene-overlay.is-line-ready .dialogue-continue {
+  opacity: 1;
+}
+
+.dialogue-continue-arrow {
+  display: inline-block;
+  color: var(--cs-gold-bright);
+  font-size: 12px;
+  line-height: 1;
+  animation: continueArrowBounce 780ms ease-in-out infinite;
+}
+
+.cutscene-overlay.is-typing .dialogue-continue-arrow {
+  animation: none;
+  opacity: 0.45;
+}
+
+@keyframes continueArrowBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(3.5px);
+    opacity: 0.5;
+  }
+}
+
+/* ==========================================================================
+   7. Responsive Adjustments for Smaller Viewports
+   ========================================================================== */
+
+@media (max-width: 720px) {
+  .cutscene-bar--top {
+    height: 52px;
+  }
+
+  .cutscene-bar--bottom {
+    height: 56px;
+  }
+
+  .cutscene-top-inner {
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .cutscene-progress {
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+
+  .cutscene-title {
+    font-size: 11px;
+    padding: 4px 12px;
+    max-width: 50vw;
+  }
+
+  .cutscene-skip-btn {
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+
+  .dialogue-stage {
+    bottom: 10px;
+    padding: 0 10px;
+  }
+
+  .dialogue-box {
+    min-height: 108px;
+    padding: 11px 13px 10px 11px;
+    gap: 12px;
+    border-radius: 13px;
+  }
+
+  .dialogue-portrait {
+    width: 72px;
+    height: 72px;
+    border-radius: 11px;
+  }
+
+  .dialogue-speaker {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+
+  .dialogue-text {
+    min-height: 44px;
+    font-size: 13.5px;
+  }
+
+  .dialogue-continue {
+    font-size: 10px;
+  }
+}
